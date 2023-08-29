@@ -17,11 +17,13 @@ I enjoy bringing creativity and aesthetics to the digital world."
 ]
 
 export default function App() {
+
+  const newMember = {fname: '', lname: '', bio: ''} // reset
+
   const [members, setMembers] = useState(teamMembers)
   const [editing, setEditing] = useState(null)
   const [inputValues, setInputValues] = useState(newMember)
-
-  const newMember = {fname: '', lname: '', bio: ''} // reset
+  
   let thisMember = {...inputValues} // user inputs
   let thatMember = editing ? members[editing] : newMember // submitted info
   
