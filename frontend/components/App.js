@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react'
 
 let id = 0
 const getId = () => ++id
@@ -24,13 +24,29 @@ export default function App() {
   const [editing, setEditing] = useState(null)
   const [inputValues, setInputValues] = useState(newMember)
   
-  let thisMember = {...inputValues} // user inputs
-  let thatMember = editing ? members[editing] : newMember // submitted info
+  let thisMember = {id: getId(), ...inputValues} // user inputs
+  const thatMember = editing ? members.find(member => member.id === editing) : newMember // previously submitted info
   
-  useEffect(() => {  
+  // for debugging
+  /* 
+  const firstUpdate = useRef(true)
+  useLayoutEffect(() => {
+    if (firstUpdate.current) {
+      firstUpdate.current = false
+      return;
+    }
+    console.log(members)
+    console.log(editing)
+    console.log(inputValues)
+  })
+  */
+
+  // control input values
+  useEffect(() => {
     setInputValues(thatMember)
   }, [editing])
 
+  // handle form changes
   const onChange = evt => {
     setInputValues({...inputValues, [evt.target.id]: evt.target.value})
   }
@@ -38,18 +54,23 @@ export default function App() {
     setEditing(id)
   }
   const submitNewMember = () => {
-    setMembers(...members, thisMember)
+    setMembers(members.concat(thisMember))
   }
   const editExistingMember = () => {
-    setMembers(...members, members[editing] = thisMember)
+    setMembers(members.map(member => {
+      if(member.id === editing) {member = thisMember}
+      return member
+    }))
   }
   const onSubmit = evt => {
     evt.preventDefault()
     editing ? editExistingMember() : submitNewMember()
-    edit() // ?
+    setInputValues(newMember)
+    setEditing(null)
   }
+
   return (
-    <div>{/* ✨ Fix the JSX by wiring the necessary values and event handlers */}
+    <div>
       <div id="membersList">
         <h2>Team Members</h2>
         <div>
@@ -60,7 +81,7 @@ export default function App() {
                   <h4>{mem.fname} {mem.lname}</h4>
                   <p>{mem.bio}</p>
                 </div>
-                <button>Edit</button>
+                <button onClick={()=>edit(mem.id)}>Edit</button>
               </div>
             ))
           }
@@ -68,20 +89,20 @@ export default function App() {
       </div>
       <div id="membersForm">
         <h2>{editing ? 'Edit' : 'Add'} a Team Member</h2>
-        <form>
+        <form onSubmit={onSubmit} >
           <div>
             <label htmlFor="fname">First Name </label>
-            <input id="fname" type="text" placeholder="Type First Name" />
+            <input id="fname" type="text" placeholder="Type First Name" value={inputValues.fname} onChange={onChange} />
           </div>
 
           <div>
             <label htmlFor="lname">Last Name </label>
-            <input id="lname" type="text" placeholder="Type Last Name" />
+            <input id="lname" type="text" placeholder="Type Last Name" value={inputValues.lname} onChange={onChange} />
           </div>
 
           <div>
             <label htmlFor="bio">Bio </label>
-            <textarea id="bio" placeholder="Type Bio" />
+            <textarea id="bio" placeholder="Type Bio" value={inputValues.bio} onChange={onChange} />
           </div>
 
           <div>
