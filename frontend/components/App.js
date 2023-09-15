@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react'
+import React, { useState, useEffect } from 'react'
+// for debugging
+// import { useRef, useLayoutEffect } from 'react'
 
 let id = 0
 const getId = () => ++id
